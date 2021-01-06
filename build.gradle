@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+group 'net.minecraft'
+version 'rd-131655'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}
