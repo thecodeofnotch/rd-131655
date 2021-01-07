@@ -1,5 +1,6 @@
 package com.mojang.rubydung;
 
+import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -12,7 +13,13 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class RubyDung implements Runnable {
 
-    public void init() throws Exception {
+    /**
+     * Initialize the game.
+     * Setup display, keyboard, mouse, rendering, projection and perspective
+     *
+     * @throws LWJGLException Game could not be initialized
+     */
+    public void init() throws LWJGLException {
         int width = 1024;
         int height = 768;
 
@@ -43,12 +50,19 @@ public class RubyDung implements Runnable {
         Mouse.setGrabbed(true);
     }
 
+    /**
+     * Destroy mouse, keyboard and display
+     */
     public void destroy() {
         Mouse.destroy();
         Keyboard.destroy();
         Display.destroy();
     }
 
+    /**
+     * Main game thread
+     * Responsible for the game loop
+     */
     @Override
     public void run() {
         try {
@@ -77,6 +91,10 @@ public class RubyDung implements Runnable {
         }
     }
 
+    /**
+     * Entry point of the game
+     * @param args Program arguments (unused)
+     */
     public static void main(String[] args) {
         new Thread(new RubyDung()).start();
     }
