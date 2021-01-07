@@ -1,5 +1,7 @@
 package com.mojang.rubydung.level;
 
+import java.util.Random;
+
 public class Level {
 
     public final int width;
@@ -28,8 +30,43 @@ public class Level {
                     // Calculate index from x, y and z
                     int index = (y * this.height + z) * this.width + x;
 
-                    // Set tile based on location
-                    this.blocks[index] = (byte) (y < depth / 2 ? 1 : 0);
+                    // Fill level with tiles
+                    this.blocks[index] = (byte) 1;
+                }
+            }
+        }
+
+        // Generate caves
+        for (int i = 0; i < 1000; i++) {
+            int caveX = (int) (Math.random() * width);
+            int caveY = (int) (Math.random() * depth);
+            int caveZ = (int) (Math.random() * height);
+
+            // Grow cave
+            for (int radius = 0; radius < 10; radius++) {
+                for (int sphere = 0; sphere < 1000; sphere++) {
+                    int offsetX = (int) (Math.random() * radius * 2 - radius);
+                    int offsetY = (int) (Math.random() * radius * 2 - radius);
+                    int offsetZ = (int) (Math.random() * radius * 2 - radius);
+
+                    int tileX = caveX + offsetX;
+                    int tileY = caveY + offsetY;
+                    int tileZ = caveZ + offsetZ;
+
+                    // Calculate index from x, y and z
+                    int index = (tileY * this.height + tileZ) * this.width + tileX;
+
+                    // Check if tile is out of level
+                    if (index >= 0 && index < this.blocks.length) {
+
+                        // Border of level
+                        if (tileX > 0 && tileY > 0 && tileZ > 0
+                                && tileX < this.width && tileY < this.depth && tileZ < this.height) {
+
+                            // Fill level with tiles
+                            this.blocks[index] = (byte) 0;
+                        }
+                    }
                 }
             }
         }

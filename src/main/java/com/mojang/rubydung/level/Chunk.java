@@ -1,16 +1,20 @@
 package com.mojang.rubydung.level;
 
+import com.mojang.rubydung.Textures;
+import org.lwjgl.opengl.GL11;
+
 import static org.lwjgl.opengl.GL11.*;
 
 
 public class Chunk {
 
+    private static final int TEXTURE = Textures.loadTexture("/terrain.png", GL11.GL_NEAREST);
     private static final Tessellator TESSELLATOR = new Tessellator();
 
-    private Level level;
+    private final Level level;
 
-    private int minX, minY, minZ;
-    private int maxX, maxY, maxZ;
+    private final int minX, minY, minZ;
+    private final int maxX, maxY, maxZ;
 
     /**
      * Chunk containing a part of the tiles in a level
@@ -40,15 +44,16 @@ public class Chunk {
     public void render() {
         // Setup tile rendering
         glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE, TEXTURE);
         TESSELLATOR.init();
 
         // For each tile in this chunk
         for (int x = this.minX; x < this.maxX; ++x) {
             for (int y = this.minY; y < this.maxY; ++y) {
                 for (int z = this.minZ; z < this.maxZ; ++z) {
-
                     // Is a tile at this location?
                     if (this.level.isTile(x, y, z)) {
+
                         // Render the tile
                         Tile.rock.render(TESSELLATOR, this.level, x, y, z);
                     }

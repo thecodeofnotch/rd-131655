@@ -9,9 +9,16 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Tessellator {
 
-    private final FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(300000);
+    private static final int MAX_VERTICES = 100000;
+
+    private final FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(MAX_VERTICES * 3);
+    private final FloatBuffer textureCoordinateBuffer = BufferUtils.createFloatBuffer(MAX_VERTICES * 2);
 
     private int vertices = 0;
+
+    private boolean hasTexture = false;
+    private float textureU;
+    private float textureV;
 
     /**
      * Reset the buffer
@@ -33,7 +40,24 @@ public class Tessellator {
         this.vertexBuffer.put(this.vertices * 3 + 1, y);
         this.vertexBuffer.put(this.vertices * 3 + 2, z);
 
+        // Texture coordinate
+        if (this.hasTexture) {
+            this.textureCoordinateBuffer.put(this.vertices * 2, this.textureU);
+            this.textureCoordinateBuffer.put(this.vertices * 2 + 1, this.textureV);
+        }
+
         this.vertices++;
+
+        // Flush if there are too many vertices in the buffer
+        if (this.vertices == MAX_VERTICES) {
+            flush();
+        }
+    }
+
+    public void texture(float textureU, float textureV) {
+        this.hasTexture = true;
+        this.textureU = textureU;
+        this.textureV = textureV;
     }
 
     /**
@@ -41,14 +65,28 @@ public class Tessellator {
      */
     public void flush() {
         this.vertexBuffer.flip();
+        this.textureCoordinateBuffer.flip();
 
+        // Set points
         glVertexPointer(GL_LINE_STRIP, GL_POINTS, this.vertexBuffer);
-        glEnableClientState(GL_VERTEX_ARRAY);
+        if (this.hasTexture) {
+            GL11.glTexCoordPointer(2, 0, this.textureCoordinateBuffer);
+        }
 
+        // Enable vertex array state
+        glEnableClientState(GL_VERTEX_ARRAY);
+        if (this.hasTexture) {
+            GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+        }
+
+        // Draw quads
         glDrawArrays(GL11.GL_QUADS, GL_POINTS, this.vertices);
-        glDisableClientState(GL_VERTEX_ARRAY);
 
         // Reset after rendering
+        glDisableClientState(GL_VERTEX_ARRAY);
+        if (this.hasTexture) {
+            GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+        }
         clear();
     }
 
@@ -57,6 +95,9 @@ public class Tessellator {
      */
     private void clear() {
         this.vertexBuffer.clear();
+        this.textureCoordinateBuffer.clear();
         this.vertices = 0;
+
+        this.hasTexture = false;
     }
 }

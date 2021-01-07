@@ -15,8 +15,9 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class RubyDung implements Runnable {
 
-    private final Level level = new Level(256, 64, 256);
-    private final LevelRenderer levelRenderer = new LevelRenderer(this.level);
+    private Level level;
+    private LevelRenderer levelRenderer;
+    private Player player;
 
     /**
      * Initialize the game.
@@ -50,6 +51,11 @@ public class RubyDung implements Runnable {
         glLoadIdentity();
         gluPerspective(70, width / (float) height, 0.05F, 1000);
         glMatrixMode(GL_MODELVIEW);
+
+        // Create level and player (Has to be in main thread)
+        this.level = new Level(256, 64, 256);
+        this.levelRenderer = new LevelRenderer(this.level);
+        this.player = new Player(this.level);
 
         // Grab mouse cursor
         Mouse.setGrabbed(true);
@@ -94,17 +100,40 @@ public class RubyDung implements Runnable {
     }
 
     /**
+     * Move and rotate the camera to players location and rotation
+     */
+    private void moveCameraToPlayer() {
+        Player player = this.player;
+
+        // Eye height
+        glTranslatef(0.0f, 0.0f, -0.3f);
+
+        // Rotate camera
+        glRotatef(player.xRotation, 1.0f, 0.0f, 0.0f);
+        glRotatef(player.yRotation, 0.0f, 1.0f, 0.0f);
+
+        // Move camera to players location
+        glTranslatef(-player.x, -player.y, -player.z);
+    }
+
+
+    /**
      * Rendering the game
      */
     private void render() {
-        // Clear color and depth buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Get mouse motion
+        float motionX = Mouse.getDX();
+        float motionY = Mouse.getDY();
 
-        // Reset camera
+        // Rotate the camera using the mouse motion input
+        this.player.turn(motionX, motionY);
+
+        // Clear color and depth buffer and reset the camera
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
 
         // Move camera to middle of level
-        glTranslated(-this.level.width / 2D, -this.level.depth / 2D - 3, -this.level.height / 2D);
+        moveCameraToPlayer();
 
         // Render level chunks
         this.levelRenderer.render();
