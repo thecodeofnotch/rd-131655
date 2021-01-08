@@ -130,7 +130,7 @@ public class RubyDung implements Runnable {
         glRotatef(player.yRotation, 0.0f, 1.0f, 0.0f);
 
         // Move camera to players location
-        glTranslatef(-player.x, -player.y, -player.z);
+        glTranslated(-player.x, -player.y, -player.z);
     }
 
 

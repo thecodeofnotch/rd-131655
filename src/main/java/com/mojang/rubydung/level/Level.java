@@ -1,5 +1,9 @@
 package com.mojang.rubydung.level;
 
+import com.mojang.rubydung.phys.AABB;
+
+import java.util.ArrayList;
+
 public class Level {
 
     public final int width;
@@ -103,5 +107,44 @@ public class Level {
      */
     public boolean isSolidTile(int x, int y, int z) {
         return isTile(x, y, z);
+    }
+
+    /**
+     * Get bounding box of all tiles surrounded by the given bounding box
+     *
+     * @param boundingBox Target bounding box located in the level
+     * @return List of bounding boxes representing the tiles around the given bounding box
+     */
+    public ArrayList<AABB> getCubes(AABB boundingBox) {
+        ArrayList<AABB> boundingBoxList = new ArrayList<>();
+
+        int minX = (int) (Math.floor(boundingBox.minX) - 1);
+        int maxX = (int) (Math.ceil(boundingBox.maxX) + 1);
+        int minY = (int) (Math.floor(boundingBox.minY) - 1);
+        int maxY = (int) (Math.ceil(boundingBox.maxY) + 1);
+        int minZ = (int) (Math.floor(boundingBox.minZ) - 1);
+        int maxZ = (int) (Math.ceil(boundingBox.maxZ) + 1);
+
+        // Minimum level position
+        minX = Math.max(0, minX);
+        minY = Math.max(0, minY);
+        minZ = Math.max(0, minZ);
+
+        // Maximum level position
+        maxX = Math.min(this.width, maxX);
+        maxY = Math.min(this.depth, maxY);
+        maxZ = Math.min(this.height, maxZ);
+
+        // Include all surrounding tiles
+        for (int x = minX; x < maxX; x++) {
+            for (int y = minY; y < maxY; y++) {
+                for (int z = minZ; z < maxZ; z++) {
+                    if (isSolidTile(x, y, z)) {
+                        boundingBoxList.add(new AABB(x, y, z, x + 1, y + 1, z + 1));
+                    }
+                }
+            }
+        }
+        return boundingBoxList;
     }
 }

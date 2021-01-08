@@ -1,14 +1,19 @@
 package com.mojang.rubydung;
 
 import com.mojang.rubydung.level.Level;
+import com.mojang.rubydung.phys.AABB;
 import org.lwjgl.input.Keyboard;
+
+import java.util.List;
 
 public class Player {
 
     private final Level level;
 
-    public float x, y, z;
+    public double x, y, z;
     public float xRotation, yRotation;
+
+    public AABB boundingBox;
 
     /**
      * The player that is controlling the camera of the game
@@ -29,9 +34,19 @@ public class Player {
      * @param z Position z
      */
     private void setPosition(float x, float y, float z) {
+        // Set the position of the player
         this.x = x;
         this.y = y;
         this.z = z;
+
+        // Player size
+        float width = 0.3F;
+        float height = 0.9F;
+
+        // Set the position of the bounding box
+        this.boundingBox = new AABB(x - width, y - height,
+                z - width, x + width,
+                y + height, z + width);
     }
 
     /**
@@ -79,19 +94,66 @@ public class Player {
             motionX++;
         }
         if ((Keyboard.isKeyDown(57) || Keyboard.isKeyDown(219))) { // Space, Windows Key
-            this.y++;
+            move(0, 1, 0);
         }
 
         moveRelative(motionX, motionZ, 0.02F);
+
+        move(0, -0.5F, 0);
     }
 
-    private void moveRelative(float motionX, float motionZ, float speed) {
+    /**
+     * Move player relative in level with collision check
+     *
+     * @param x Relative x
+     * @param y Relative y
+     * @param z Relative z
+     */
+    public void move(double x, double y, double z) {
+        // Get surrounded tiles
+        List<AABB> aABBs = this.level.getCubes(this.boundingBox.expand(x, y, z));
+
+        // Check for Y collision
+        for (AABB abb : aABBs) {
+            y = (float) abb.clipYCollide(this.boundingBox, y);
+        }
+        this.boundingBox.move(0.0F, y, 0.0F);
+
+        // Check for X collision
+        for (AABB aABB : aABBs) {
+            x = (float) aABB.clipXCollide(this.boundingBox, x);
+        }
+        this.boundingBox.move(x, 0.0F, 0.0F);
+
+        // Check for Z collision
+        for (AABB aABB : aABBs) {
+            z = (float) aABB.clipZCollide(this.boundingBox, z);
+        }
+        this.boundingBox.move(0.0F, 0.0F, z);
+
+        // Move the actual player position
+        this.x = (this.boundingBox.minX + this.boundingBox.maxX) / 2.0F;
+        this.y = this.boundingBox.minY + 1.62F;
+        this.z = (this.boundingBox.minZ + this.boundingBox.maxZ) / 2.0F;
+    }
+
+
+    /**
+     * Move player relative in facing direction with given speed
+     *
+     * @param x     Relative movement on X axis
+     * @param z     Relative movement on Z axis
+     * @param speed Speed of the player
+     */
+    private void moveRelative(float x, float z, float speed) {
         // Calculate sin and cos of player rotation
         float sin = (float) Math.sin(Math.toRadians(this.yRotation));
         float cos = (float) Math.cos(Math.toRadians(this.yRotation));
 
         // Move the player in facing direction
-        this.x += motionX * cos - motionZ * sin;
-        this.z += motionZ * cos + motionX * sin;
+        double mX = x * cos - z * sin;
+        double mZ = z * cos + x * sin;
+
+        move(mX, 0, mZ);
     }
 }
