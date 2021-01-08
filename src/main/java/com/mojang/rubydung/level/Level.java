@@ -2,7 +2,10 @@ package com.mojang.rubydung.level;
 
 import com.mojang.rubydung.phys.AABB;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class Level {
 
@@ -28,62 +31,96 @@ public class Level {
         this.blocks = new byte[width * height * depth];
         this.lightDepths = new int[width * height];
 
-        // Fill level with tiles
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < depth; y++) {
-                for (int z = 0; z < height; z++) {
-                    // Calculate index from x, y and z
-                    int index = (y * this.height + z) * this.width + x;
+        // Check if level file is available
+        File levelFile = new File("level.dat");
+        if (levelFile.exists()) {
+            // Load existing level
+            load();
+        } else {
+            // Fill level with tiles
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < depth; y++) {
+                    for (int z = 0; z < height; z++) {
+                        // Calculate index from x, y and z
+                        int index = (y * this.height + z) * this.width + x;
 
-                    // Fill level with tiles
-                    this.blocks[index] = (byte) 1;
+                        // Fill level with tiles
+                        this.blocks[index] = (byte) 1;
+                    }
                 }
             }
-        }
 
-        // Generate caves
-        for (int i = 0; i < 10000; i++) {
-            int caveSize = (int) (Math.random() * 7) + 1;
+            // Generate caves
+            for (int i = 0; i < 10000; i++) {
+                int caveSize = (int) (Math.random() * 7) + 1;
 
-            int caveX = (int) (Math.random() * width);
-            int caveY = (int) (Math.random() * depth);
-            int caveZ = (int) (Math.random() * height);
+                int caveX = (int) (Math.random() * width);
+                int caveY = (int) (Math.random() * depth);
+                int caveZ = (int) (Math.random() * height);
 
-            // Grow cave
-            for (int radius = 0; radius < caveSize; radius++) {
-                for (int sphere = 0; sphere < 1000; sphere++) {
-                    int offsetX = (int) (Math.random() * radius * 2 - radius);
-                    int offsetY = (int) (Math.random() * radius * 2 - radius);
-                    int offsetZ = (int) (Math.random() * radius * 2 - radius);
+                // Grow cave
+                for (int radius = 0; radius < caveSize; radius++) {
+                    for (int sphere = 0; sphere < 1000; sphere++) {
+                        int offsetX = (int) (Math.random() * radius * 2 - radius);
+                        int offsetY = (int) (Math.random() * radius * 2 - radius);
+                        int offsetZ = (int) (Math.random() * radius * 2 - radius);
 
-                    double distance = Math.pow(offsetX, 2) + Math.pow(offsetY, 2) + Math.pow(offsetZ, 2);
-                    if (distance > radius * radius)
-                        continue;
+                        double distance = Math.pow(offsetX, 2) + Math.pow(offsetY, 2) + Math.pow(offsetZ, 2);
+                        if (distance > radius * radius)
+                            continue;
 
-                    int tileX = caveX + offsetX;
-                    int tileY = caveY + offsetY;
-                    int tileZ = caveZ + offsetZ;
+                        int tileX = caveX + offsetX;
+                        int tileY = caveY + offsetY;
+                        int tileZ = caveZ + offsetZ;
 
-                    // Calculate index from x, y and z
-                    int index = (tileY * this.height + tileZ) * this.width + tileX;
+                        // Calculate index from x, y and z
+                        int index = (tileY * this.height + tileZ) * this.width + tileX;
 
-                    // Check if tile is out of level
-                    if (index >= 0 && index < this.blocks.length) {
+                        // Check if tile is out of level
+                        if (index >= 0 && index < this.blocks.length) {
 
-                        // Border of level
-                        if (tileX > 0 && tileY > 0 && tileZ > 0
-                                && tileX < this.width - 1 && tileY < this.depth && tileZ < this.height - 1) {
+                            // Border of level
+                            if (tileX > 0 && tileY > 0 && tileZ > 0
+                                    && tileX < this.width - 1 && tileY < this.depth && tileZ < this.height - 1) {
 
-                            // Fill level with tiles
-                            this.blocks[index] = (byte) 0;
+                                // Fill level with tiles
+                                this.blocks[index] = (byte) 0;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // Calculate light depth of the entire level
-        calcLightDepths(0, 0, width, height);
+            // Calculate light depth of the entire level
+            calcLightDepths(0, 0, width, height);
+        }
+    }
+
+    /**
+     * Load blocks from level.dat
+     */
+    public void load() {
+        try {
+            DataInputStream dis = new DataInputStream(new GZIPInputStream(new FileInputStream("level.dat")));
+            dis.readFully(this.blocks);
+            calcLightDepths(0, 0, this.width, this.height);
+            dis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Store blocks in level.dat
+     */
+    public void save() {
+        try {
+            DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(new FileOutputStream("level.dat")));
+            dos.write(this.blocks);
+            dos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

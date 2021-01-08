@@ -79,6 +79,8 @@ public class RubyDung implements Runnable {
      * Destroy mouse, keyboard and display
      */
     public void destroy() {
+        this.level.save();
+
         Mouse.destroy();
         Keyboard.destroy();
         Display.destroy();
@@ -101,7 +103,7 @@ public class RubyDung implements Runnable {
 
         try {
             // Start the game loop
-            while (/*!Keyboard.isKeyDown(1) && */!Display.isCloseRequested()) {
+            while (!Keyboard.isKeyDown(1) && !Display.isCloseRequested()){
                 // Update the timer
                 this.timer.advanceTime();
 
