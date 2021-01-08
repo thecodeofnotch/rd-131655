@@ -65,6 +65,7 @@ public class Level {
                         int offsetY = (int) (Math.random() * radius * 2 - radius);
                         int offsetZ = (int) (Math.random() * radius * 2 - radius);
 
+                        // Sphere shape
                         double distance = Math.pow(offsetX, 2) + Math.pow(offsetY, 2) + Math.pow(offsetZ, 2);
                         if (distance > radius * radius)
                             continue;

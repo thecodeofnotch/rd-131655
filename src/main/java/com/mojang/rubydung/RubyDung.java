@@ -101,9 +101,13 @@ public class RubyDung implements Runnable {
             System.exit(0);
         }
 
+        // To keep track of framerate
+        int frames = 0;
+        long lastTime = System.currentTimeMillis();
+
         try {
             // Start the game loop
-            while (!Keyboard.isKeyDown(1) && !Display.isCloseRequested()){
+            while (!Keyboard.isKeyDown(1) && !Display.isCloseRequested()) {
                 // Update the timer
                 this.timer.advanceTime();
 
@@ -114,6 +118,19 @@ public class RubyDung implements Runnable {
 
                 // Render the game
                 render();
+
+                // Increase rendered frame
+                frames++;
+
+                // Loop if a second passed
+                while (System.currentTimeMillis() >= lastTime + 1000L) {
+                    // Print amount of frames
+                    System.out.println(frames + " fps");
+
+                    // Increase last time printed and reset frame counter
+                    lastTime += 1000L;
+                    frames = 0;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
