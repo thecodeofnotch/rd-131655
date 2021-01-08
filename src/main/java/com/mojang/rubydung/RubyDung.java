@@ -15,6 +15,8 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class RubyDung implements Runnable {
 
+    private Timer timer = new Timer(20);
+
     private Level level;
     private LevelRenderer levelRenderer;
     private Player player;
@@ -88,7 +90,13 @@ public class RubyDung implements Runnable {
         try {
             // Start the game loop
             while (!Keyboard.isKeyDown(1) && !Display.isCloseRequested()) {
-                this.player.tick();
+                // Update the timer
+                this.timer.advanceTime();
+
+                // Call the tick to reach updates 20 per seconds
+                for (int i = 0; i < this.timer.ticks; ++i) {
+                    tick();
+                }
 
                 // Render the game
                 render();
@@ -99,6 +107,13 @@ public class RubyDung implements Runnable {
             // Destroy I/O and save game
             destroy();
         }
+    }
+
+    /**
+     * Game tick, called exactly 20 times per second
+     */
+    private void tick() {
+        this.player.tick();
     }
 
     /**
