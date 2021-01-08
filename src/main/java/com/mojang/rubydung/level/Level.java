@@ -43,15 +43,15 @@ public class Level {
 
         // Generate caves
         for (int i = 0; i < 10000; i++) {
+            int caveSize = (int) (Math.random() * 7) + 1;
+
             int caveX = (int) (Math.random() * width);
             int caveY = (int) (Math.random() * depth);
             int caveZ = (int) (Math.random() * height);
 
-            int caveSize = (int) (Math.random() * 5) + 3;
-
             // Grow cave
             for (int radius = 0; radius < caveSize; radius++) {
-                for (int sphere = 0; sphere < 3000; sphere++) {
+                for (int sphere = 0; sphere < 1000; sphere++) {
                     int offsetX = (int) (Math.random() * radius * 2 - radius);
                     int offsetY = (int) (Math.random() * radius * 2 - radius);
                     int offsetZ = (int) (Math.random() * radius * 2 - radius);
