@@ -72,6 +72,10 @@ public class Player {
     public void turn(float x, float y) {
         this.yRotation += x * 0.15F;
         this.xRotation -= y * 0.15F;
+
+        // Pitch limit
+        this.xRotation = Math.max(-90.0F, this.xRotation);
+        this.xRotation = Math.min(90.0F, this.xRotation);
     }
 
     public void tick() {

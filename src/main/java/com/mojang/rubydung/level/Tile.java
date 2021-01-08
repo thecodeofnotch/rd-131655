@@ -27,6 +27,10 @@ public class Tile {
         float minV = 0.0F;
         float maxV = minV + 16 / 256F;
 
+        float shadeX = 0.6f;
+        float shadeY = 1.0f;
+        float shadeZ = 0.8f;
+
         float minX = x + 0.0F;
         float maxX = x + 1.0F;
         float minY = y + 0.0F;
@@ -37,10 +41,10 @@ public class Tile {
         // Render bottom face
         if (!level.isSolidTile(x, y - 1, z)) {
             // Get the brightness of the tile below
-            float brightness = level.getBrightness(x, y - 1, z);
+            float brightness = level.getBrightness(x, y - 1, z) * shadeY;
 
             // Don't render face if both conditions are the same (isShadowLayer != isFullBrightness)
-            if (layer == 1 ^ brightness == 1) {
+            if (layer == 1 ^ brightness == shadeY) {
                 tessellator.color(brightness, brightness, brightness);
                 tessellator.texture(minU, maxV);
                 tessellator.vertex(minX, minY, maxZ);
@@ -56,10 +60,10 @@ public class Tile {
         // Render top face
         if (!level.isSolidTile(x, y + 1, z)) {
             // Get the brightness of the tile above
-            float brightness = level.getBrightness(x, y + 1, z);
+            float brightness = level.getBrightness(x, y + 1, z) * shadeY;
 
             // Don't render face if both conditions are the same (isShadowLayer != isFullBrightness)
-            if (layer == 1 ^ brightness == 1) {
+            if (layer == 1 ^ brightness == shadeY) {
                 tessellator.color(brightness, brightness, brightness);
                 tessellator.texture(maxU, maxV);
                 tessellator.vertex(maxX, maxY, maxZ);
@@ -75,10 +79,10 @@ public class Tile {
         // Render side faces Z
         if (!level.isSolidTile(x, y, z - 1)) {
             // Get the brightness of the tile next to it
-            float brightness = level.getBrightness(x, y, z - 1);
+            float brightness = level.getBrightness(x, y, z - 1) * shadeZ;
 
             // Don't render face if both conditions are the same (isShadowLayer != isFullBrightness)
-            if (layer == 1 ^ brightness == 1) {
+            if (layer == 1 ^ brightness == shadeZ) {
                 tessellator.color(brightness, brightness, brightness);
                 tessellator.texture(maxU, minV);
                 tessellator.vertex(minX, maxY, minZ);
@@ -92,10 +96,10 @@ public class Tile {
         }
         if (!level.isSolidTile(x, y, z + 1)) {
             // Get the brightness of the tile next to it
-            float brightness = level.getBrightness(x, y, z + 1);
+            float brightness = level.getBrightness(x, y, z + 1) * shadeZ;
 
             // Don't render face if both conditions are the same (isShadowLayer != isFullBrightness)
-            if (layer == 1 ^ brightness == 1) {
+            if (layer == 1 ^ brightness == shadeZ) {
                 tessellator.color(brightness, brightness, brightness);
                 tessellator.texture(minU, minV);
                 tessellator.vertex(minX, maxY, maxZ);
@@ -111,10 +115,10 @@ public class Tile {
         // Render side faces X
         if (!level.isSolidTile(x - 1, y, z)) {
             // Get the brightness of the tile next to it
-            float brightness = level.getBrightness(x - 1, y, z);
+            float brightness = level.getBrightness(x - 1, y, z) * shadeX;
 
             // Don't render face if both conditions are the same (isShadowLayer != isFullBrightness)
-            if (layer == 1 ^ brightness == 1) {
+            if (layer == 1 ^ brightness == shadeX) {
                 tessellator.color(brightness, brightness, brightness);
                 tessellator.texture(maxU, minV);
                 tessellator.vertex(minX, maxY, maxZ);
@@ -128,10 +132,10 @@ public class Tile {
         }
         if (!level.isSolidTile(x + 1, y, z)) {
             // Get the brightness of the tile next to it
-            float brightness = level.getBrightness(x + 1, y, z);
+            float brightness = level.getBrightness(x + 1, y, z) * shadeX;
 
             // Don't render face if both conditions are the same (isShadowLayer != isFullBrightness)
-            if (layer == 1 ^ brightness == 1) {
+            if (layer == 1 ^ brightness == shadeX) {
                 tessellator.color(brightness, brightness, brightness);
                 tessellator.texture(minU, maxV);
                 tessellator.vertex(maxX, minY, maxZ);

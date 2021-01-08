@@ -166,8 +166,9 @@ public class RubyDung implements Runnable {
 
         // Setup fog
         glEnable(GL_FOG);
-        glFogi(GL_FOG_MODE, GL_VIEWPORT_BIT);
-        glFogf(GL_FOG_DENSITY, 0.2f);
+        glFogi(GL_FOG_MODE, GL_LINEAR);
+        glFogf(GL_FOG_START, -10);
+        glFogf(GL_FOG_END, 20);
         glFog(GL_FOG_COLOR, this.fogColor);
         glDisable(GL_FOG);
 

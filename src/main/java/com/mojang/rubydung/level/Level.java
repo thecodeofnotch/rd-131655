@@ -51,10 +51,14 @@ public class Level {
 
             // Grow cave
             for (int radius = 0; radius < caveSize; radius++) {
-                for (int sphere = 0; sphere < 1000; sphere++) {
+                for (int sphere = 0; sphere < 3000; sphere++) {
                     int offsetX = (int) (Math.random() * radius * 2 - radius);
                     int offsetY = (int) (Math.random() * radius * 2 - radius);
                     int offsetZ = (int) (Math.random() * radius * 2 - radius);
+
+                    double distance = Math.pow(offsetX, 2) + Math.pow(offsetY, 2) + Math.pow(offsetZ, 2);
+                    if (distance > radius * radius)
+                        continue;
 
                     int tileX = caveX + offsetX;
                     int tileY = caveY + offsetY;
