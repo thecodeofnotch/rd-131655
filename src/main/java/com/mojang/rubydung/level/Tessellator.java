@@ -1,7 +1,6 @@
 package com.mojang.rubydung.level;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
 
@@ -13,12 +12,20 @@ public class Tessellator {
 
     private final FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(MAX_VERTICES * 3);
     private final FloatBuffer textureCoordinateBuffer = BufferUtils.createFloatBuffer(MAX_VERTICES * 2);
+    private final FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(MAX_VERTICES * 3);
 
     private int vertices = 0;
 
+    // Texture
     private boolean hasTexture = false;
     private float textureU;
     private float textureV;
+
+    // Color
+    private boolean hasColor;
+    private float red;
+    private float green;
+    private float blue;
 
     /**
      * Reset the buffer
@@ -46,6 +53,13 @@ public class Tessellator {
             this.textureCoordinateBuffer.put(this.vertices * 2 + 1, this.textureV);
         }
 
+        // Color coordinate
+        if (this.hasColor) {
+            this.colorBuffer.put(this.vertices * 3, this.red);
+            this.colorBuffer.put(this.vertices * 3 + 1, this.green);
+            this.colorBuffer.put(this.vertices * 3 + 2, this.blue);
+        }
+
         this.vertices++;
 
         // Flush if there are too many vertices in the buffer
@@ -60,6 +74,13 @@ public class Tessellator {
         this.textureV = textureV;
     }
 
+    public void color(float red, float green, float blue) {
+        this.hasColor = true;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+    }
+
     /**
      * Render the buffer
      */
@@ -68,24 +89,33 @@ public class Tessellator {
         this.textureCoordinateBuffer.flip();
 
         // Set points
-        glVertexPointer(GL_LINE_STRIP, GL_POINTS, this.vertexBuffer);
+        glVertexPointer(3, GL_POINTS, this.vertexBuffer);
         if (this.hasTexture) {
-            GL11.glTexCoordPointer(2, 0, this.textureCoordinateBuffer);
+            glTexCoordPointer(2, GL_POINTS, this.textureCoordinateBuffer);
+        }
+        if (this.hasColor) {
+            glColorPointer(3, GL_POINTS, this.colorBuffer);
         }
 
-        // Enable vertex array state
+        // Enable client states
         glEnableClientState(GL_VERTEX_ARRAY);
         if (this.hasTexture) {
-            GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
+        if (this.hasColor) {
+            glEnableClientState(GL_COLOR_ARRAY);
         }
 
         // Draw quads
-        glDrawArrays(GL11.GL_QUADS, GL_POINTS, this.vertices);
+        glDrawArrays(GL_QUADS, GL_POINTS, this.vertices);
 
         // Reset after rendering
         glDisableClientState(GL_VERTEX_ARRAY);
         if (this.hasTexture) {
-            GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
+        if (this.hasColor) {
+            glDisableClientState(GL_COLOR_ARRAY);
         }
         clear();
     }
@@ -99,5 +129,6 @@ public class Tessellator {
         this.vertices = 0;
 
         this.hasTexture = false;
+        this.hasColor = false;
     }
 }

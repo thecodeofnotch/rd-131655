@@ -11,6 +11,7 @@ public class Level {
     public final int depth;
 
     private final byte[] blocks;
+    private final int[] lightDepths;
 
     /**
      * Three dimensional level containing all tiles
@@ -24,8 +25,10 @@ public class Level {
         this.height = height;
         this.depth = depth;
 
-        // Create level with tiles
         this.blocks = new byte[width * height * depth];
+        this.lightDepths = new int[width * height];
+
+        // Fill level with tiles
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < depth; y++) {
                 for (int z = 0; z < height; z++) {
@@ -74,6 +77,37 @@ public class Level {
                 }
             }
         }
+
+        // Calculate light depth of the entire level
+        calcLightDepths(0, 0, width, height);
+    }
+
+    /**
+     * Calculate light depth of given area
+     *
+     * @param minX Minimum on X axis
+     * @param minZ Minimum on Z axis
+     * @param maxX Maximum on X axis
+     * @param maxZ Maximum on Z axis
+     */
+    private void calcLightDepths(int minX, int minZ, int maxX, int maxZ) {
+        // For each x/z position in level
+        for (int x = minX; x < minX + maxX; x++) {
+            for (int z = minZ; z < minZ + maxZ; z++) {
+
+                // Get previous light depth value
+                int prevDepth = this.lightDepths[x + z * this.width];
+
+                // Calculate new light depth
+                int depth = this.depth - 1;
+                while (depth > 0 && !isLightBlocker(x, depth, z)) {
+                    depth--;
+                }
+
+                // Set new light depth
+                this.lightDepths[x + z * this.width] = depth;
+            }
+        }
     }
 
     /**
@@ -108,6 +142,46 @@ public class Level {
     public boolean isSolidTile(int x, int y, int z) {
         return isTile(x, y, z);
     }
+
+    /**
+     * Returns true if the tile is blocking the light
+     *
+     * @param x Tile position x
+     * @param y Tile position y
+     * @param z Tile position z
+     * @return Tile blocks the light
+     */
+    public boolean isLightBlocker(final int x, final int y, final int z) {
+        return this.isSolidTile(x, y, z);
+    }
+
+    /**
+     * Get brightness of a tile
+     *
+     * @param x Tile position x
+     * @param y Tile position y
+     * @param z Tile position z
+     * @return The brightness value from 0 to 1
+     */
+    public float getBrightness(int x, int y, int z) {
+        // Define brightness
+        float dark = 0.8F;
+        float light = 1.0F;
+
+        // Is light tile
+        if (x < 0 || y < 0 || z < 0 || x >= this.width || y >= this.depth || z >= this.height) {
+            return light;
+        }
+
+        // Is dark tile
+        if (y < this.lightDepths[x + z * this.width]) {
+            return dark;
+        }
+
+        // Unknown brightness
+        return light;
+    }
+
 
     /**
      * Get bounding box of all tiles surrounded by the given bounding box

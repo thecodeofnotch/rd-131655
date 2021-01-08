@@ -12,6 +12,7 @@ public class LevelRenderer {
 
     /**
      * Create renderer for level
+     *
      * @param level The rendered level
      */
     public LevelRenderer(Level level) {
@@ -52,10 +53,49 @@ public class LevelRenderer {
 
     /**
      * Render all chunks of the level
+     *
+     * @param layer The render layer
      */
-    public void render() {
+    public void render(int layer) {
         for (Chunk chunk : this.chunks) {
-            chunk.render();
+            chunk.render(layer);
+        }
+    }
+
+    /**
+     * Mark all chunks inside of the given area as dirty.
+     *
+     * @param minX Minimum on X axis
+     * @param minY Minimum on Y axis
+     * @param minZ Minimum on Z axis
+     * @param maxX Maximum on X axis
+     * @param maxY Maximum on Y axis
+     * @param maxZ Maximum on Z axis
+     */
+    public void setDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        // To chunk coordinates
+        minX /= CHUNK_SIZE;
+        minY /= CHUNK_SIZE;
+        minZ /= CHUNK_SIZE;
+        maxX /= CHUNK_SIZE;
+        maxY /= CHUNK_SIZE;
+        maxZ /= CHUNK_SIZE;
+
+        // Minimum and maximum y
+        minY = Math.max(0, minY);
+        maxY = Math.min(15, maxY);
+
+        // Mark all chunks as dirty
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    // Get chunk at this position
+                    Chunk chunk = this.chunks[(x + y * this.chunkAmountX) * this.chunkAmountZ + z];
+
+                    // Set dirty
+                    chunk.setDirty();
+                }
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package com.mojang.rubydung;
 
 import com.mojang.rubydung.level.Level;
 import com.mojang.rubydung.level.LevelRenderer;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -9,17 +10,20 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import javax.swing.*;
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class RubyDung implements Runnable {
 
-    private Timer timer = new Timer(60);
+    private final Timer timer = new Timer(60);
 
     private Level level;
     private LevelRenderer levelRenderer;
     private Player player;
+
+    private final FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
 
     /**
      * Initialize the game.
@@ -28,6 +32,14 @@ public class RubyDung implements Runnable {
      * @throws LWJGLException Game could not be initialized
      */
     public void init() throws LWJGLException {
+        // Write fog color
+        this.fogColor.put(new float[]{
+                14 / 255.0F,
+                11 / 255.0F,
+                10 / 255.0F,
+                255 / 255.0F
+        }).flip();
+
         int width = 1024;
         int height = 768;
 
@@ -89,7 +101,7 @@ public class RubyDung implements Runnable {
 
         try {
             // Start the game loop
-            while (!Keyboard.isKeyDown(1) && !Display.isCloseRequested()) {
+            while (/*!Keyboard.isKeyDown(1) && */!Display.isCloseRequested()) {
                 // Update the timer
                 this.timer.advanceTime();
 
@@ -152,8 +164,24 @@ public class RubyDung implements Runnable {
         // Move camera to middle of level
         moveCameraToPlayer();
 
-        // Render level chunks
-        this.levelRenderer.render();
+        // Setup fog
+        glEnable(GL_FOG);
+        glFogi(GL_FOG_MODE, GL_VIEWPORT_BIT);
+        glFogf(GL_FOG_DENSITY, 0.2f);
+        glFog(GL_FOG_COLOR, this.fogColor);
+        glDisable(GL_FOG);
+
+        // Render bright tiles
+        this.levelRenderer.render(0);
+
+        // Enable fog to render shadow
+        glEnable(GL_FOG);
+
+        // Render dark tiles in shadow
+        this.levelRenderer.render(1);
+
+        // Finish rendering
+        glDisable(GL_TEXTURE_2D);
 
         // Update the display
         Display.update();

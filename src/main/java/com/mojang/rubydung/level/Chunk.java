@@ -41,17 +41,19 @@ public class Chunk {
         this.maxZ = maxZ;
 
         // Generate lists id
-        this.lists = glGenLists(1);
+        this.lists = glGenLists(2);
     }
 
     /**
      * Render all tiles in this chunk
+     *
+     * @param layer The layer of the chunk (For shadows)
      */
-    public void rebuild() {
+    public void rebuild(int layer) {
         this.dirty = false;
 
         // Setup tile rendering
-        glNewList(this.lists, GL_COMPILE);
+        glNewList(this.lists + layer, GL_COMPILE);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE, TEXTURE);
         TESSELLATOR.init();
@@ -63,8 +65,14 @@ public class Chunk {
                     // Is a tile at this location?
                     if (this.level.isTile(x, y, z)) {
 
-                        // Render the tile
-                        Tile.rock.render(TESSELLATOR, this.level, x, y, z);
+                        // Grass is only on the first 7 tiles if the brightness is on maximum
+                        if (y > this.level.depth - 7 && this.level.getBrightness(x, y, z) == 1.0F) {
+                            // Render the tile
+                            Tile.grass.render(TESSELLATOR, this.level, layer, x, y, z);
+                        } else {
+                            // Render the tile
+                            Tile.rock.render(TESSELLATOR, this.level, layer, x, y, z);
+                        }
                     }
                 }
             }
@@ -76,13 +84,26 @@ public class Chunk {
         glEndList();
     }
 
-    public void render() {
+    /**
+     * Render all tiles in this chunk
+     *
+     * @param layer The render layer (Shadow layer)
+     */
+    public void render(int layer) {
         // Rebuild chunk if dirty
         if (this.dirty) {
-            rebuild();
+            rebuild(0);
+            rebuild(1);
         }
 
         // Call lists id to render the chunk
-        GL11.glCallList(this.lists);
+        glCallList(this.lists + layer);
+    }
+
+    /**
+     * Mark chunk as dirty. The chunk will rebuild in the next frame
+     */
+    public void setDirty() {
+        this.dirty = true;
     }
 }
