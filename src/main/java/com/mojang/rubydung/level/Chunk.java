@@ -1,7 +1,7 @@
 package com.mojang.rubydung.level;
 
 import com.mojang.rubydung.Textures;
-import org.lwjgl.opengl.GL11;
+import com.mojang.rubydung.phys.AABB;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -13,6 +13,7 @@ public class Chunk {
 
     private final Level level;
 
+    public AABB boundingBox;
     private final int minX, minY, minZ;
     private final int maxX, maxY, maxZ;
 
@@ -42,6 +43,9 @@ public class Chunk {
 
         // Generate lists id
         this.lists = glGenLists(2);
+
+        // Create bounding box object of chunk
+        this.boundingBox = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     /**

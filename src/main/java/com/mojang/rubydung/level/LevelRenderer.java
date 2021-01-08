@@ -57,8 +57,18 @@ public class LevelRenderer {
      * @param layer The render layer
      */
     public void render(int layer) {
+        // Get current camera frustum
+        Frustum frustum = Frustum.getFrustum();
+
+        // For all chunks
         for (Chunk chunk : this.chunks) {
-            chunk.render(layer);
+
+            // Render if bounding box of chunk is in frustum
+            if (frustum.cubeInFrustum(chunk.boundingBox)) {
+
+                // Render chunk
+                chunk.render(layer);
+            }
         }
     }
 
