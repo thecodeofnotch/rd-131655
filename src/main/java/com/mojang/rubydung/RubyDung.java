@@ -15,7 +15,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class RubyDung implements Runnable {
 
-    private Timer timer = new Timer(20);
+    private Timer timer = new Timer(60);
 
     private Level level;
     private LevelRenderer levelRenderer;

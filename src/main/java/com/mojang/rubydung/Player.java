@@ -11,7 +11,10 @@ public class Player {
     private final Level level;
 
     public double x, y, z;
+    public double motionX, motionY, motionZ;
     public float xRotation, yRotation;
+
+    private boolean onGround;
 
     public AABB boundingBox;
 
@@ -63,17 +66,17 @@ public class Player {
     /**
      * Turn the camera using motion yaw and pitch
      *
-     * @param motionX Rotate the camera using yaw
-     * @param motionY Rotate the camera using pitch
+     * @param x Rotate the camera using yaw
+     * @param y Rotate the camera using pitch
      */
-    public void turn(float motionX, float motionY) {
-        this.yRotation += motionX * 0.15F;
-        this.xRotation -= motionY * 0.15F;
+    public void turn(float x, float y) {
+        this.yRotation += x * 0.15F;
+        this.xRotation -= y * 0.15F;
     }
 
     public void tick() {
-        float motionX = 0.0F;
-        float motionZ = 0.0F;
+        float forward = 0.0F;
+        float vertical = 0.0F;
 
         // Reset the position of the player
         if (Keyboard.isKeyDown(19)) { // R
@@ -82,24 +85,42 @@ public class Player {
 
         // Player movement
         if (Keyboard.isKeyDown(200) || Keyboard.isKeyDown(17)) { // Up, W
-            motionZ--;
+            forward--;
         }
         if (Keyboard.isKeyDown(208) || Keyboard.isKeyDown(31)) { // Down, S
-            motionZ++;
+            forward++;
         }
         if (Keyboard.isKeyDown(203) || Keyboard.isKeyDown(30)) { // Left, A
-            motionX--;
+            vertical--;
         }
         if (Keyboard.isKeyDown(205) || Keyboard.isKeyDown(32)) {  // Right, D
-            motionX++;
+            vertical++;
         }
         if ((Keyboard.isKeyDown(57) || Keyboard.isKeyDown(219))) { // Space, Windows Key
-            move(0, 1, 0);
+            if (this.onGround) {
+                this.motionY = 0.12F;
+            }
         }
 
-        moveRelative(motionX, motionZ, 0.02F);
+        // Add motion to the player using keyboard input
+        moveRelative(vertical, forward, this.onGround ? 0.02F : 0.005F);
 
-        move(0, -0.5F, 0);
+        // Apply gravity motion
+        this.motionY -= 0.005D;
+
+        // Move the player using the motion
+        move(this.motionX, this.motionY, this.motionZ);
+
+        // Decrease motion
+        this.motionX *= 0.91F;
+        this.motionY *= 0.98F;
+        this.motionZ *= 0.91F;
+
+        // Decrease motion on ground
+        if (this.onGround) {
+            this.motionX *= 0.8F;
+            this.motionZ *= 0.8F;
+        }
     }
 
     /**
@@ -110,50 +131,71 @@ public class Player {
      * @param z Relative z
      */
     public void move(double x, double y, double z) {
+        double prevX = x;
+        double prevY = y;
+        double prevZ = z;
+
         // Get surrounded tiles
         List<AABB> aABBs = this.level.getCubes(this.boundingBox.expand(x, y, z));
 
         // Check for Y collision
         for (AABB abb : aABBs) {
-            y = (float) abb.clipYCollide(this.boundingBox, y);
+            y = abb.clipYCollide(this.boundingBox, y);
         }
         this.boundingBox.move(0.0F, y, 0.0F);
 
         // Check for X collision
         for (AABB aABB : aABBs) {
-            x = (float) aABB.clipXCollide(this.boundingBox, x);
+            x = aABB.clipXCollide(this.boundingBox, x);
         }
         this.boundingBox.move(x, 0.0F, 0.0F);
 
         // Check for Z collision
         for (AABB aABB : aABBs) {
-            z = (float) aABB.clipZCollide(this.boundingBox, z);
+            z = aABB.clipZCollide(this.boundingBox, z);
         }
         this.boundingBox.move(0.0F, 0.0F, z);
 
+        // Update on ground state
+        this.onGround = prevY != y && prevY < 0.0F;
+
+        // Stop motion on collision
+        if (prevX != x) this.motionX = 0.0D;
+        if (prevY != y) this.motionY = 0.0D;
+        if (prevZ != z) this.motionZ = 0.0D;
+
         // Move the actual player position
-        this.x = (this.boundingBox.minX + this.boundingBox.maxX) / 2.0F;
-        this.y = this.boundingBox.minY + 1.62F;
-        this.z = (this.boundingBox.minZ + this.boundingBox.maxZ) / 2.0F;
+        this.x = (this.boundingBox.minX + this.boundingBox.maxX) / 2.0D;
+        this.y = this.boundingBox.minY + 1.62D;
+        this.z = (this.boundingBox.minZ + this.boundingBox.maxZ) / 2.0D;
     }
 
 
     /**
-     * Move player relative in facing direction with given speed
+     * Add motion to the player in the facing direction with given speed
      *
-     * @param x     Relative movement on X axis
-     * @param z     Relative movement on Z axis
-     * @param speed Speed of the player
+     * @param x     Motion to add on X axis
+     * @param z     Motion to add on Z axis
+     * @param speed Strength of the added motion
      */
     private void moveRelative(float x, float z, float speed) {
+        float distance = x * x + z * z;
+
+        // Stop moving if too slow
+        if (distance < 0.01F)
+            return;
+
+        // Apply speed to relative movement
+        distance = speed / (float) Math.sqrt(distance);
+        x *= distance;
+        z *= distance;
+
         // Calculate sin and cos of player rotation
-        float sin = (float) Math.sin(Math.toRadians(this.yRotation));
-        float cos = (float) Math.cos(Math.toRadians(this.yRotation));
+        double sin = Math.sin(Math.toRadians(this.yRotation));
+        double cos = Math.cos(Math.toRadians(this.yRotation));
 
         // Move the player in facing direction
-        double mX = x * cos - z * sin;
-        double mZ = z * cos + x * sin;
-
-        move(mX, 0, mZ);
+        this.motionX += x * cos - z * sin;
+        this.motionZ += z * cos + x * sin;
     }
 }
