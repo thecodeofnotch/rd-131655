@@ -60,6 +60,9 @@ public class LevelRenderer {
         // Get current camera frustum
         Frustum frustum = Frustum.getFrustum();
 
+        // Reset global chunk rebuild stats
+        Chunk.rebuiltThisFrame = 0;
+
         // For all chunks
         for (Chunk chunk : this.chunks) {
 

@@ -1,5 +1,6 @@
 package com.mojang.rubydung;
 
+import com.mojang.rubydung.level.Chunk;
 import com.mojang.rubydung.level.Level;
 import com.mojang.rubydung.level.LevelRenderer;
 import org.lwjgl.BufferUtils;
@@ -117,7 +118,7 @@ public class RubyDung implements Runnable {
                 }
 
                 // Render the game
-                render();
+                render(this.timer.partialTicks);
 
                 // Increase rendered frame
                 frames++;
@@ -125,7 +126,10 @@ public class RubyDung implements Runnable {
                 // Loop if a second passed
                 while (System.currentTimeMillis() >= lastTime + 1000L) {
                     // Print amount of frames
-                    System.out.println(frames + " fps");
+                    System.out.println(frames + " fps, " + Chunk.updates);
+
+                    // Reset global rebuild stats
+                    Chunk.updates = 0;
 
                     // Increase last time printed and reset frame counter
                     lastTime += 1000L;
@@ -149,8 +153,10 @@ public class RubyDung implements Runnable {
 
     /**
      * Move and rotate the camera to players location and rotation
+     *
+     * @param partialTicks Overflow ticks to calculate smooth a movement
      */
-    private void moveCameraToPlayer() {
+    private void moveCameraToPlayer(float partialTicks) {
         Player player = this.player;
 
         // Eye height
@@ -160,15 +166,22 @@ public class RubyDung implements Runnable {
         glRotatef(player.xRotation, 1.0f, 0.0f, 0.0f);
         glRotatef(player.yRotation, 0.0f, 1.0f, 0.0f);
 
+        // Smooth movement
+        double x = this.player.prevX + (this.player.x - this.player.prevX) * partialTicks;
+        double y = this.player.prevY + (this.player.y - this.player.prevY) * partialTicks;
+        double z = this.player.prevZ + (this.player.z - this.player.prevZ) * partialTicks;
+
         // Move camera to players location
-        glTranslated(-player.x, -player.y, -player.z);
+        glTranslated(-x, -y, -z);
     }
 
 
     /**
      * Rendering the game
+     *
+     * @param partialTicks Overflow ticks to calculate smooth a movement
      */
-    private void render() {
+    private void render(float partialTicks) {
         // Get mouse motion
         float motionX = Mouse.getDX();
         float motionY = Mouse.getDY();
@@ -181,7 +194,7 @@ public class RubyDung implements Runnable {
         glLoadIdentity();
 
         // Move camera to middle of level
-        moveCameraToPlayer();
+        moveCameraToPlayer(partialTicks);
 
         // Setup fog
         glEnable(GL_FOG);

@@ -11,6 +11,7 @@ public class Player {
     private final Level level;
 
     public double x, y, z;
+    public double prevX, prevY, prevZ;
     public double motionX, motionY, motionZ;
     public float xRotation, yRotation;
 
@@ -79,6 +80,11 @@ public class Player {
     }
 
     public void tick() {
+        // Store previous position
+        this.prevX = this.x;
+        this.prevY = this.y;
+        this.prevZ = this.z;
+
         float forward = 0.0F;
         float vertical = 0.0F;
 

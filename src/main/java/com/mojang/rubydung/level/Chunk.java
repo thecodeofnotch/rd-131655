@@ -11,12 +11,27 @@ public class Chunk {
     private static final int TEXTURE = Textures.loadTexture("/terrain.png", GL_NEAREST);
     private static final Tessellator TESSELLATOR = new Tessellator();
 
+    /**
+     * Global rebuild statistic
+     */
+    public static int rebuiltThisFrame;
+    public static int updates;
+
+    /**
+     * The game level
+     */
     private final Level level;
 
+    /**
+     * Bounding box values
+     */
     public AABB boundingBox;
     private final int minX, minY, minZ;
     private final int maxX, maxY, maxZ;
 
+    /**
+     * Rendering states
+     */
     private final int lists;
     private boolean dirty = true;
 
@@ -54,6 +69,16 @@ public class Chunk {
      * @param layer The layer of the chunk (For shadows)
      */
     public void rebuild(int layer) {
+        if (rebuiltThisFrame == 2) {
+            // Rebuild limit reached for this frame
+            return;
+        }
+
+        // Update global stats
+        updates++;
+        rebuiltThisFrame++;
+
+        // Mark chunk as no longer dirty
         this.dirty = false;
 
         // Setup tile rendering
