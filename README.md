@@ -2,7 +2,7 @@
 Development phase: May 10 - May 13, 2009
 
 [![Demo](.assets/demo.gif)](https://www.youtube.com/watch?v=UMpv5kZ9-rE)
-Cave game tech test video released on May 13, 2009.
+<br>Cave game tech test video released on May 13, 2009.
 
 ## Accuracy
 The original version was never released to the public.
