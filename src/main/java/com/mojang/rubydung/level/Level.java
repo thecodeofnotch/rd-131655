@@ -1,7 +1,5 @@
 package com.mojang.rubydung.level;
 
-import java.util.Random;
-
 public class Level {
 
     public final int width;
@@ -37,13 +35,15 @@ public class Level {
         }
 
         // Generate caves
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             int caveX = (int) (Math.random() * width);
             int caveY = (int) (Math.random() * depth);
             int caveZ = (int) (Math.random() * height);
 
+            int caveSize = (int) (Math.random() * 5) + 3;
+
             // Grow cave
-            for (int radius = 0; radius < 10; radius++) {
+            for (int radius = 0; radius < caveSize; radius++) {
                 for (int sphere = 0; sphere < 1000; sphere++) {
                     int offsetX = (int) (Math.random() * radius * 2 - radius);
                     int offsetY = (int) (Math.random() * radius * 2 - radius);
@@ -61,7 +61,7 @@ public class Level {
 
                         // Border of level
                         if (tileX > 0 && tileY > 0 && tileZ > 0
-                                && tileX < this.width && tileY < this.depth && tileZ < this.height) {
+                                && tileX < this.width - 1 && tileY < this.depth && tileZ < this.height - 1) {
 
                             // Fill level with tiles
                             this.blocks[index] = (byte) 0;

@@ -1,6 +1,7 @@
 package com.mojang.rubydung;
 
 import com.mojang.rubydung.level.Level;
+import org.lwjgl.input.Keyboard;
 
 public class Player {
 
@@ -53,5 +54,44 @@ public class Player {
     public void turn(float motionX, float motionY) {
         this.yRotation += motionX * 0.15F;
         this.xRotation -= motionY * 0.15F;
+    }
+
+    public void tick() {
+        float motionX = 0.0F;
+        float motionZ = 0.0F;
+
+        // Reset the position of the player
+        if (Keyboard.isKeyDown(19)) { // R
+            resetPosition();
+        }
+
+        // Player movement
+        if (Keyboard.isKeyDown(200) || Keyboard.isKeyDown(17)) { // Up, W
+            motionZ--;
+        }
+        if (Keyboard.isKeyDown(208) || Keyboard.isKeyDown(31)) { // Down, S
+            motionZ++;
+        }
+        if (Keyboard.isKeyDown(203) || Keyboard.isKeyDown(30)) { // Left, A
+            motionX--;
+        }
+        if (Keyboard.isKeyDown(205) || Keyboard.isKeyDown(32)) {  // Right, D
+            motionX++;
+        }
+        if ((Keyboard.isKeyDown(57) || Keyboard.isKeyDown(219))) { // Space, Windows Key
+            this.y++;
+        }
+
+        moveRelative(motionX, motionZ, 0.02F);
+    }
+
+    private void moveRelative(float motionX, float motionZ, float speed) {
+        // Calculate sin and cos of player rotation
+        float sin = (float) Math.sin(Math.toRadians(this.yRotation));
+        float cos = (float) Math.cos(Math.toRadians(this.yRotation));
+
+        // Move the player in facing direction
+        this.x += motionX * cos - motionZ * sin;
+        this.z += motionZ * cos + motionX * sin;
     }
 }

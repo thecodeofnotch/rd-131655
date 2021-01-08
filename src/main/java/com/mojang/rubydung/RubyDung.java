@@ -53,7 +53,7 @@ public class RubyDung implements Runnable {
         glMatrixMode(GL_MODELVIEW);
 
         // Create level and player (Has to be in main thread)
-        this.level = new Level(256, 64, 256);
+        this.level = new Level(256, 256, 64);
         this.levelRenderer = new LevelRenderer(this.level);
         this.player = new Player(this.level);
 
@@ -88,6 +88,8 @@ public class RubyDung implements Runnable {
         try {
             // Start the game loop
             while (!Keyboard.isKeyDown(1) && !Display.isCloseRequested()) {
+                this.player.tick();
+
                 // Render the game
                 render();
             }

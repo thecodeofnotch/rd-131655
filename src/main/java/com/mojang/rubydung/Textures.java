@@ -15,6 +15,13 @@ public class Textures {
 
     private static int lastId = Integer.MIN_VALUE;
 
+    /**
+     * Load a texture into OpenGL
+     *
+     * @param resourceName Resource path of the image
+     * @param mode         Texture filter mode (GL_NEAREST, GL_LINEAR)
+     * @return Texture id of OpenGL
+     */
     public static int loadTexture(String resourceName, int mode) {
         // Generate a new texture id
         int id = glGenTextures();
@@ -65,7 +72,11 @@ public class Textures {
         return id;
     }
 
-
+    /**
+     * Bind the texture to OpenGL using the id from {@link #loadTexture(String, int)}
+     *
+     * @param id Texture id
+     */
     public static void bind(int id) {
         if (id != lastId) {
             glBindTexture(GL_TEXTURE_2D, id);

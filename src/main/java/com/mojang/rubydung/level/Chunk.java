@@ -8,13 +8,16 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Chunk {
 
-    private static final int TEXTURE = Textures.loadTexture("/terrain.png", GL11.GL_NEAREST);
+    private static final int TEXTURE = Textures.loadTexture("/terrain.png", GL_NEAREST);
     private static final Tessellator TESSELLATOR = new Tessellator();
 
     private final Level level;
 
     private final int minX, minY, minZ;
     private final int maxX, maxY, maxZ;
+
+    private final int lists;
+    private boolean dirty = true;
 
     /**
      * Chunk containing a part of the tiles in a level
@@ -36,13 +39,19 @@ public class Chunk {
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
+
+        // Generate lists id
+        this.lists = glGenLists(1);
     }
 
     /**
      * Render all tiles in this chunk
      */
-    public void render() {
+    public void rebuild() {
+        this.dirty = false;
+
         // Setup tile rendering
+        glNewList(this.lists, GL_COMPILE);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE, TEXTURE);
         TESSELLATOR.init();
@@ -64,5 +73,16 @@ public class Chunk {
         // Finish tile rendering
         TESSELLATOR.flush();
         glDisable(GL_TEXTURE_2D);
+        glEndList();
+    }
+
+    public void render() {
+        // Rebuild chunk if dirty
+        if (this.dirty) {
+            rebuild();
+        }
+
+        // Call lists id to render the chunk
+        GL11.glCallList(this.lists);
     }
 }
