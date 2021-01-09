@@ -13,3 +13,8 @@ it is possible to recreate the unreleased version.
 #### Recreated features:
 - Cave generation
 - 8x8x8 Chunks
+
+## Setup
+1. Clone the project
+2. Set the VM option ``-Dorg.lwjgl.librarypath="<path_to_project>/run/natives"``
+3. Set the working directory to ``./run``
