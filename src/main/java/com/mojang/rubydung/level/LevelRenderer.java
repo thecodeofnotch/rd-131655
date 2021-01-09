@@ -25,9 +25,9 @@ public class LevelRenderer {
         this.chunks = new Chunk[this.chunkAmountX * this.chunkAmountY * this.chunkAmountZ];
 
         // Fill level with chunks
-        for (int x = 0; x < this.chunkAmountX; ++x) {
-            for (int y = 0; y < this.chunkAmountY; ++y) {
-                for (int z = 0; z < this.chunkAmountZ; ++z) {
+        for (int x = 0; x < this.chunkAmountX; x++) {
+            for (int y = 0; y < this.chunkAmountY; y++) {
+                for (int z = 0; z < this.chunkAmountZ; z++) {
                     // Calculate min bounds for chunk
                     int minChunkX = x * CHUNK_SIZE;
                     int minChunkY = y * CHUNK_SIZE;
@@ -94,9 +94,15 @@ public class LevelRenderer {
         maxY /= CHUNK_SIZE;
         maxZ /= CHUNK_SIZE;
 
-        // Minimum and maximum y
-        minY = Math.max(0, minY);
-        maxY = Math.min(15, maxY);
+        // Minimum limit
+        minX = Math.max(minX, 0);
+        minY = Math.max(minY, 0);
+        minZ = Math.max(minZ, 0);
+
+        // Maximum limit
+        maxX = Math.min(maxX, this.chunkAmountX - 1);
+        maxY = Math.min(maxY, this.chunkAmountY - 1);
+        maxZ = Math.min(maxZ, this.chunkAmountZ - 1);
 
         // Mark all chunks as dirty
         for (int x = minX; x <= maxX; x++) {

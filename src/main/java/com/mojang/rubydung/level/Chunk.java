@@ -96,10 +96,10 @@ public class Chunk {
 
                         // Grass is only on the first 7 tiles if the brightness is on maximum
                         if (y > this.level.depth - 7 && this.level.getBrightness(x, y, z) == 1.0F) {
-                            // Render the tile
+                            // Render the grass tile
                             Tile.grass.render(TESSELLATOR, this.level, layer, x, y, z);
                         } else {
-                            // Render the tile
+                            // Render the rock tile
                             Tile.rock.render(TESSELLATOR, this.level, layer, x, y, z);
                         }
                     }
