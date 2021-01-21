@@ -17,7 +17,7 @@ it is possible to recreate the unreleased version.
 ## References
 - [Minecraft Wiki - Java_Edition_pre-Classic_rd-131655](https://minecraft.gamepedia.com/Java_Edition_pre-Classic_rd-131655)
 - [Cave game tech test - Nizzotch on YouTube](https://www.youtube.com/watch?v=UMpv5kZ9-rE)
-- [IRC logs](https://minecraft.gamepedia.com/Java_Edition_pre-Classic_rd-131655#lwjgl_logs) to recreate the unreleased features:
+- [IRC logs](https://web.archive.org/web/20200528035558/https://echelog.com/logs/browse/lwjgl/1242511200) to recreate the unreleased features:
   - ``[18:55:45] <Notch_> the chunk size is 16x16 now..``
   - ``[18:56:47] <Notch_> 8x8 chunks are SLOWER``
   - ``[20:02:58] <Notch_> it takes like 20 seconds to grow a 256*256*64 map, though. :-\``
