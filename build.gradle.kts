@@ -22,7 +22,7 @@ dependencies {
 
 
 task("run", JavaExec::class) {
-    jvmArgs = listOf("-Dorg.lwjgl.librarypath=\"${project.projectDir.toPath()}\\run\\natives\"")
+    jvmArgs = listOf("-Dorg.lwjgl.librarypath=${project.projectDir.toPath()}\\run\\natives")
     main = "com.mojang.rubydung.RubyDung"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir("${project.projectDir.toPath()}\\run")
