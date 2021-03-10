@@ -98,7 +98,6 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
-fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
@@ -128,6 +127,5 @@ src/main/resources/
 src/test/
 **/src/main/generated/*
 
-versioned/*/Labyfy
 .idea/intellij-javadocs-4.0.1.xml
 run
